@@ -19,6 +19,7 @@ from src.systems.economy import SunManager
 from src.systems.combat import CombatSystem
 from src.systems.wave import WaveSystem
 from src.systems.save import SaveManager
+from src.systems.lawnmower import LawnMowerManager
 from src.config import (
     SCREEN_WIDTH, SCREEN_HEIGHT,
     GRID_X_START, GRID_Y_START,
@@ -136,6 +137,9 @@ class GameplayScene(Scene):
         self._drag_img: pygame.Surface | None = None
         self._drag_pos: tuple[int, int] = (0, 0)
 
+        # ── Lawn mowers ───────────────────────────────────────────────
+        self._lawnmowers = LawnMowerManager()
+
         # ── End-game state ────────────────────────────────────────────
         self._end_state: int = _EndState.PLAYING
         self._end_image: pygame.Surface | None = None
@@ -243,9 +247,13 @@ class GameplayScene(Scene):
         # Combat
         self._combat.update(dt)
 
+        # ── Lawn mowers ───────────────────────────────────────────────
+        self._lawnmowers.check_zombie_reach(self._zombie_mgr)
+        self._lawnmowers.update(dt, self._zombie_mgr)
+
         # ── Win/Lose checks ───────────────────────────────────────────
-        # Lose: zombie reached the house
-        if self._zombie_mgr.any_reached_house():
+        # Lose: zombie reached past lawn mowers (house)
+        if self._lawnmowers.check_zombie_reach(self._zombie_mgr):
             self._trigger_game_over()
 
         # Win: all waves done and no zombies alive
@@ -280,6 +288,9 @@ class GameplayScene(Scene):
 
         # grid overlay (subtle)
         self._draw_grid(surface)
+
+        # lawn mowers
+        self._lawnmowers.draw(surface)
 
         # plants
         self._plant_mgr.draw(surface)
@@ -343,12 +354,14 @@ class GameplayScene(Scene):
                 surface.blit(hint, hint_rect)
 
     def _draw_grid(self, surface: pygame.Surface):
-        """Draw a subtle grid overlay so the player can see cells."""
+        """Draw a very subtle grid overlay so the player can see cells."""
+        grid_surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
         for row in range(GRID_ROWS):
             for col in range(GRID_COLS):
                 x, y = LawnGrid.cell_topleft(row, col)
                 rect = pygame.Rect(x, y, CELL_WIDTH, CELL_HEIGHT)
-                pygame.draw.rect(surface, (255, 255, 255, 30), rect, 1)
+                pygame.draw.rect(grid_surface, (255, 255, 255, 15), rect, 1)
+        surface.blit(grid_surface, (0, 0))
 
     def _draw_wave_progress(self, surface: pygame.Surface):
         """Draw wave progress indicator at the bottom of the screen."""

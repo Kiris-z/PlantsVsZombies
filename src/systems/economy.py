@@ -62,10 +62,11 @@ class Sun:
                 self.y = self.y_target
                 self.falling = False
             self.anim.rect.center = (int(self.x), int(self.y))
-        # lifetime
-        self.age += dt
-        if self.age > SUN_LIFETIME:
-            self.alive = False
+        # lifetime — only age when not falling and not being collected
+        if not self.falling:
+            self.age += dt
+            if self.age > SUN_LIFETIME:
+                self.alive = False
 
     def draw(self, surface: pygame.Surface):
         if self.alive:
@@ -98,14 +99,16 @@ class SunManager:
         # update existing
         for s in self._suns:
             s.update(dt)
-        # reap dead — add value for collected ones
+        # reap dead — add value for collected ones that reached the counter
         new_list = []
         for s in self._suns:
             if s.alive:
                 new_list.append(s)
-            elif s.collecting:
-                # it reached the counter
-                self.sun_count += SUN_VALUE
+            else:
+                # Sun died — if it was being collected (flew to counter), add value
+                if s.collecting:
+                    self.sun_count += SUN_VALUE
+                # otherwise it just expired or was removed
         self._suns = new_list
 
     def draw(self, surface: pygame.Surface):
