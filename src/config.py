@@ -104,12 +104,62 @@ PLANT_DEFS = {
         "anim_fps": 12,
         "card_image": "Cards/card_potatomine.png",
     },
+    "Spikeweed": {
+        "cost": 75,
+        "cooldown": 7.5,
+        "hp": 300,
+        "anim_folder": "Plants/Spikeweed/Spikeweed",
+        "anim_fps": 12,
+        "card_image": "Cards/card_spikeweed.png",
+    },
+    "Squash": {
+        "cost": 50,
+        "cooldown": 30.0,
+        "hp": 300,
+        "anim_folder": "Plants/Squash/Squash",
+        "anim_fps": 12,
+        "card_image": "Cards/card_squash.png",
+    },
+    "Threepeater": {
+        "cost": 325,
+        "cooldown": 7.5,
+        "hp": 300,
+        "anim_folder": "Plants/Threepeater",
+        "anim_fps": 12,
+        "card_image": "Cards/card_threepeashooter.png",
+    },
+    "PuffShroom": {
+        "cost": 0,
+        "cooldown": 7.5,
+        "hp": 300,
+        "anim_folder": "Plants/PuffShroom/PuffShroom",
+        "anim_fps": 12,
+        "card_image": "Cards/card_puffshroom.png",
+    },
+    "ScaredyShroom": {
+        "cost": 25,
+        "cooldown": 7.5,
+        "hp": 300,
+        "anim_folder": "Plants/ScaredyShroom/ScaredyShroom",
+        "anim_fps": 12,
+        "card_image": "Cards/card_scaredyshroom.png",
+    },
+    "Jalapeno": {
+        "cost": 125,
+        "cooldown": 50.0,
+        "hp": 300,
+        "anim_folder": "Plants/Jalapeno/Jalapeno",
+        "anim_fps": 12,
+        "card_image": "Cards/card_jalapeno.png",
+    },
 }
 
 # Card order in the bar (full order — actual cards shown depend on level)
 CARD_ORDER = [
     "Peashooter", "SunFlower", "WallNut", "SnowPea",
     "CherryBomb", "RepeaterPea", "Chomper", "PotatoMine",
+    "Spikeweed", "Squash", "Threepeater", "PuffShroom",
+    "ScaredyShroom", "Jalapeno",
 ]
 
 # ── Plant unlock table (level_id -> list of plants unlocked) ──────────
@@ -119,6 +169,11 @@ PLANT_UNLOCK_TABLE = {
     "1-3": ["SnowPea"],
     "1-4": ["RepeaterPea", "CherryBomb"],
     "1-5": ["Chomper"],
+    "1-6": ["PotatoMine", "Spikeweed"],
+    "1-7": ["Squash"],
+    "1-8": ["PuffShroom", "ScaredyShroom"],
+    "1-9": ["Threepeater", "Jalapeno"],
+    "1-10": [],
 }
 
 # ── Level definitions (ordered) ──────────────────────────────────────
@@ -128,6 +183,11 @@ LEVEL_LIST = [
     {"id": "1-3", "file": "src/data/levels/level_1_3.json", "name": "Level 1-3"},
     {"id": "1-4", "file": "src/data/levels/level_1_4.json", "name": "Level 1-4"},
     {"id": "1-5", "file": "src/data/levels/level_1_5.json", "name": "Level 1-5"},
+    {"id": "1-6", "file": "src/data/levels/level_1_6.json", "name": "Level 1-6"},
+    {"id": "1-7", "file": "src/data/levels/level_1_7.json", "name": "Level 1-7"},
+    {"id": "1-8", "file": "src/data/levels/level_1_8.json", "name": "Level 1-8"},
+    {"id": "1-9", "file": "src/data/levels/level_1_9.json", "name": "Level 1-9"},
+    {"id": "1-10", "file": "src/data/levels/level_1_10.json", "name": "Level 1-10"},
     {"id": "2-1", "file": "", "name": "Level 2-1"},
     {"id": "2-2", "file": "", "name": "Level 2-2"},
     {"id": "2-3", "file": "", "name": "Level 2-3"},

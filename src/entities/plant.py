@@ -1,5 +1,6 @@
 """Plant entities — Peashooter, SunFlower, WallNut, SnowPea, CherryBomb,
-RepeaterPea, Chomper, PotatoMine."""
+RepeaterPea, Chomper, PotatoMine, Spikeweed, Squash, Threepeater,
+PuffShroom, ScaredyShroom, Jalapeno."""
 
 from __future__ import annotations
 
@@ -10,7 +11,7 @@ import pygame
 from src.engine.sprite import AnimatedSprite
 from src.engine.resource import ResourceManager
 from src.systems.grid import LawnGrid
-from src.config import PLANT_DEFS, CELL_WIDTH, CELL_HEIGHT, GRID_ROWS, GRID_COLS
+from src.config import PLANT_DEFS, CELL_WIDTH, CELL_HEIGHT, GRID_ROWS, GRID_COLS, SCREEN_WIDTH
 
 if TYPE_CHECKING:
     from src.entities.bullet import BulletManager
@@ -50,6 +51,11 @@ class Plant:
     def draw(self, surface: pygame.Surface):
         if self.alive:
             surface.blit(self.sprite.image, self.sprite.rect)
+
+    @property
+    def is_immune_to_eating(self) -> bool:
+        """Return True if zombies cannot eat this plant (e.g. Spikeweed)."""
+        return False
 
     def take_damage(self, amount: float):
         self.hp -= amount

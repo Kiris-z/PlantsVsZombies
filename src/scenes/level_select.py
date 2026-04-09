@@ -13,7 +13,7 @@ from src.config import (
 
 # Button layout constants
 COLS = 5
-ROWS = 2
+ROWS = 3
 BTN_W = 110
 BTN_H = 70
 GAP_X = 20
