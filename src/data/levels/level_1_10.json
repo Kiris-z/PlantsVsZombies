@@ -1,0 +1,162 @@
+{
+  "name": "Level 1-10",
+  "initial_sun": 150,
+  "available_plants": ["Peashooter", "SunFlower", "WallNut", "SnowPea", "CherryBomb", "RepeaterPea", "Chomper", "PotatoMine", "Spikeweed", "Squash", "PuffShroom", "ScaredyShroom", "Threepeater", "Jalapeno"],
+  "waves": [
+    {
+      "wait": 25,
+      "flag": false,
+      "spawns": [
+        {"type": "Normal", "row": 2, "delay": 0},
+        {"type": "Newspaper", "row": 0, "delay": 1.5},
+        {"type": "Conehead", "row": 4, "delay": 3.0}
+      ]
+    },
+    {
+      "wait": 22,
+      "flag": false,
+      "spawns": [
+        {"type": "Conehead", "row": 1, "delay": 0},
+        {"type": "Newspaper", "row": 3, "delay": 1.0},
+        {"type": "Buckethead", "row": 2, "delay": 2.5}
+      ]
+    },
+    {
+      "wait": 18,
+      "flag": false,
+      "spawns": [
+        {"type": "Buckethead", "row": -1, "delay": 0},
+        {"type": "Newspaper", "row": -1, "delay": 1.5},
+        {"type": "Conehead", "row": -1, "delay": 3.0},
+        {"type": "Normal", "row": -1, "delay": 5.0}
+      ]
+    },
+    {
+      "wait": 16,
+      "flag": false,
+      "spawns": [
+        {"type": "Newspaper", "row": 0, "delay": 0},
+        {"type": "Buckethead", "row": 2, "delay": 0},
+        {"type": "Newspaper", "row": 4, "delay": 0},
+        {"type": "Conehead", "row": 1, "delay": 2.0},
+        {"type": "Conehead", "row": 3, "delay": 2.0}
+      ]
+    },
+    {
+      "wait": 14,
+      "flag": true,
+      "spawns": [
+        {"type": "Flag", "row": 2, "delay": 0},
+        {"type": "Newspaper", "row": -1, "delay": 0},
+        {"type": "Buckethead", "row": -1, "delay": 1},
+        {"type": "Newspaper", "row": -1, "delay": 2},
+        {"type": "Conehead", "row": -1, "delay": 3},
+        {"type": "Buckethead", "row": -1, "delay": 4},
+        {"type": "Normal", "row": -1, "delay": 5},
+        {"type": "Newspaper", "row": -1, "delay": 7},
+        {"type": "Buckethead", "row": -1, "delay": 9},
+        {"type": "Conehead", "row": -1, "delay": 11}
+      ]
+    },
+    {
+      "wait": 14,
+      "flag": false,
+      "spawns": [
+        {"type": "Buckethead", "row": 0, "delay": 0},
+        {"type": "Newspaper", "row": 1, "delay": 0},
+        {"type": "Buckethead", "row": 2, "delay": 0},
+        {"type": "Newspaper", "row": 3, "delay": 0},
+        {"type": "Buckethead", "row": 4, "delay": 0},
+        {"type": "Conehead", "row": -1, "delay": 4.0}
+      ]
+    },
+    {
+      "wait": 12,
+      "flag": false,
+      "spawns": [
+        {"type": "Buckethead", "row": -1, "delay": 0},
+        {"type": "Newspaper", "row": -1, "delay": 1},
+        {"type": "Buckethead", "row": -1, "delay": 2},
+        {"type": "Newspaper", "row": -1, "delay": 3},
+        {"type": "Conehead", "row": -1, "delay": 5},
+        {"type": "Normal", "row": -1, "delay": 7}
+      ]
+    },
+    {
+      "wait": 12,
+      "flag": false,
+      "spawns": [
+        {"type": "Buckethead", "row": 0, "delay": 0},
+        {"type": "Newspaper", "row": 2, "delay": 0},
+        {"type": "Buckethead", "row": 4, "delay": 0},
+        {"type": "Conehead", "row": 1, "delay": 2.0},
+        {"type": "Conehead", "row": 3, "delay": 2.0},
+        {"type": "Newspaper", "row": -1, "delay": 5.0}
+      ]
+    },
+    {
+      "wait": 10,
+      "flag": false,
+      "spawns": [
+        {"type": "Buckethead", "row": -1, "delay": 0},
+        {"type": "Buckethead", "row": -1, "delay": 1},
+        {"type": "Newspaper", "row": -1, "delay": 2},
+        {"type": "Buckethead", "row": -1, "delay": 3},
+        {"type": "Conehead", "row": -1, "delay": 5},
+        {"type": "Newspaper", "row": -1, "delay": 7}
+      ]
+    },
+    {
+      "wait": 10,
+      "flag": true,
+      "spawns": [
+        {"type": "Flag", "row": 0, "delay": 0},
+        {"type": "Flag", "row": 4, "delay": 0},
+        {"type": "Newspaper", "row": -1, "delay": 0},
+        {"type": "Buckethead", "row": -1, "delay": 1},
+        {"type": "Newspaper", "row": -1, "delay": 2},
+        {"type": "Buckethead", "row": -1, "delay": 3},
+        {"type": "Conehead", "row": -1, "delay": 4},
+        {"type": "Newspaper", "row": -1, "delay": 5},
+        {"type": "Buckethead", "row": -1, "delay": 7},
+        {"type": "Normal", "row": -1, "delay": 9},
+        {"type": "Newspaper", "row": -1, "delay": 11},
+        {"type": "Buckethead", "row": -1, "delay": 13}
+      ]
+    },
+    {
+      "wait": 8,
+      "flag": false,
+      "spawns": [
+        {"type": "Buckethead", "row": 0, "delay": 0},
+        {"type": "Newspaper", "row": 1, "delay": 0},
+        {"type": "Buckethead", "row": 2, "delay": 0},
+        {"type": "Newspaper", "row": 3, "delay": 0},
+        {"type": "Buckethead", "row": 4, "delay": 0},
+        {"type": "Conehead", "row": -1, "delay": 3},
+        {"type": "Newspaper", "row": -1, "delay": 6}
+      ]
+    },
+    {
+      "wait": 5,
+      "flag": true,
+      "spawns": [
+        {"type": "Flag", "row": 2, "delay": 0},
+        {"type": "Buckethead", "row": 0, "delay": 0},
+        {"type": "Newspaper", "row": 1, "delay": 0},
+        {"type": "Buckethead", "row": 2, "delay": 0},
+        {"type": "Newspaper", "row": 3, "delay": 0},
+        {"type": "Buckethead", "row": 4, "delay": 0},
+        {"type": "Newspaper", "row": -1, "delay": 2},
+        {"type": "Buckethead", "row": -1, "delay": 3},
+        {"type": "Conehead", "row": -1, "delay": 4},
+        {"type": "Newspaper", "row": -1, "delay": 5},
+        {"type": "Buckethead", "row": -1, "delay": 6},
+        {"type": "Conehead", "row": -1, "delay": 8},
+        {"type": "Newspaper", "row": -1, "delay": 10},
+        {"type": "Buckethead", "row": -1, "delay": 12},
+        {"type": "Normal", "row": -1, "delay": 14}
+      ]
+    }
+  ]
+}

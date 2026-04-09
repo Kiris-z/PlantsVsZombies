@@ -10,6 +10,7 @@ from src.engine.sprite import AnimatedSprite
 from src.entities.plant import (
     PlantManager, create_plant,
     Peashooter, SunFlower, SnowPea, RepeaterPea, Chomper, CherryBomb, PotatoMine,
+    Spikeweed, Squash, Threepeater, PuffShroom, ScaredyShroom, Jalapeno,
 )
 from src.entities.zombie import ZombieManager
 from src.entities.bullet import BulletManager
@@ -228,7 +229,7 @@ class GameplayScene(Scene):
                 "zombie_mgr": self._zombie_mgr,
             }
             # Check if any zombie is alive in this row for shooter plants
-            if isinstance(plant, (Peashooter, SnowPea, RepeaterPea)):
+            if isinstance(plant, (Peashooter, SnowPea, RepeaterPea, ScaredyShroom)):
                 zombies_in_row = len(self._zombie_mgr.get_by_row(plant.row)) > 0
                 kwargs["zombies_in_row"] = zombies_in_row
             plant.update(dt, **kwargs)

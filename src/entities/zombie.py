@@ -243,6 +243,8 @@ class Zombie:
         for p in plants:
             if not p.alive:
                 continue
+            if p.is_immune_to_eating:
+                continue  # e.g. Spikeweed — zombies walk over it
             plant_right = p.sprite.rect.right
             plant_left = p.sprite.rect.left
             if my_left <= plant_right and self.x >= plant_left:
@@ -394,6 +396,72 @@ class FlagZombie(Zombie):
 
 
 # ═══════════════════════════════════════════════════════════════════════
+# NewspaperZombie
+# ═══════════════════════════════════════════════════════════════════════
+
+class NewspaperZombie(Zombie):
+    """Carries a newspaper (150 HP armour). When paper is destroyed, speed doubles."""
+
+    BODY_HP = 200
+    ARMOUR_HP = 150
+    SPEED = 0.5
+    RESOURCE_ROOT = "Zombies/NewspaperZombie"
+    ANIM_WALK = "NewspaperZombie"
+    ANIM_ATTACK = "NewspaperZombieAttack"
+    ANIM_LOST_HEAD = "NewspaperZombieLostHead"
+    ANIM_LOST_HEAD_ATTACK = "NewspaperZombieLostHeadAttack"
+    ANIM_DIE = "NewspaperZombieDie"
+    ANIM_NO_PAPER = "NewspaperZombieNoPaper"
+    ANIM_NO_PAPER_ATTACK = "NewspaperZombieNoPaperAttack"
+
+    def _load_anims(self, rm: ResourceManager):
+        looping_keys = (
+            self.ANIM_WALK, self.ANIM_ATTACK,
+            self.ANIM_LOST_HEAD, self.ANIM_LOST_HEAD_ATTACK,
+            self.ANIM_NO_PAPER, self.ANIM_NO_PAPER_ATTACK,
+        )
+        for key in looping_keys:
+            folder = f"{self.RESOURCE_ROOT}/{key}"
+            try:
+                frames = rm.load_sequence(folder)
+                self._anims[key] = AnimatedSprite(frames, fps=12, loop=True, position=(0, 0))
+            except FileNotFoundError:
+                pass
+        # Die animation (one-shot)
+        die_folder = f"{self.RESOURCE_ROOT}/{self.ANIM_DIE}"
+        try:
+            frames = rm.load_sequence(die_folder)
+            self._anims[self.ANIM_DIE] = AnimatedSprite(frames, fps=12, loop=False, position=(0, 0))
+        except FileNotFoundError:
+            # Fallback to normal zombie die anim
+            try:
+                frames = rm.load_sequence("Zombies/NormalZombie/ZombieDie")
+                self._anims["ZombieDie"] = AnimatedSprite(frames, fps=12, loop=False, position=(0, 0))
+                self.ANIM_DIE = "ZombieDie"
+            except FileNotFoundError:
+                pass
+
+    def _on_armour_break(self):
+        """Newspaper destroyed — switch to no-paper anims and double movement speed."""
+        # Double base speed permanently
+        self.base_speed = self.SPEED * 2.0
+        if self._slow_factor < 1.0:
+            self.speed = self.base_speed * self._slow_factor
+        else:
+            self.speed = self.base_speed
+
+        if self.state == ZombieState.WALK:
+            self._current_anim_key = ""
+            self._switch_anim(self.ANIM_NO_PAPER)
+        elif self.state == ZombieState.ATTACK:
+            self._current_anim_key = ""
+            self._switch_anim(self.ANIM_NO_PAPER_ATTACK)
+        # Update instance-level walk/attack keys to no-paper variants
+        self.ANIM_WALK = self.ANIM_NO_PAPER
+        self.ANIM_ATTACK = self.ANIM_NO_PAPER_ATTACK
+
+
+# ═══════════════════════════════════════════════════════════════════════
 # ZombieManager
 # ═══════════════════════════════════════════════════════════════════════
 
@@ -447,6 +515,8 @@ def create_zombie(zombie_type: str, row: int, col_offset: float = 0.0) -> Zombie
         "BucketheadZombie": BucketheadZombie,
         "Flag": FlagZombie,
         "FlagZombie": FlagZombie,
+        "Newspaper": NewspaperZombie,
+        "NewspaperZombie": NewspaperZombie,
     }
     cls = _MAP.get(zombie_type)
     if cls is None:
