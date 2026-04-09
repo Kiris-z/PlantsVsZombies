@@ -1,0 +1,51 @@
+{
+  "name": "Level 1-1",
+  "initial_sun": 50,
+  "available_plants": ["Peashooter", "SunFlower", "WallNut"],
+  "waves": [
+    {
+      "wait": 30,
+      "flag": false,
+      "spawns": [
+        {"type": "Normal", "row": 2, "delay": 0}
+      ]
+    },
+    {
+      "wait": 25,
+      "flag": false,
+      "spawns": [
+        {"type": "Normal", "row": 1, "delay": 0},
+        {"type": "Normal", "row": 3, "delay": 0}
+      ]
+    },
+    {
+      "wait": 20,
+      "flag": false,
+      "spawns": [
+        {"type": "Normal", "row": 0, "delay": 0},
+        {"type": "Normal", "row": 4, "delay": 0}
+      ]
+    },
+    {
+      "wait": 20,
+      "flag": false,
+      "spawns": [
+        {"type": "Normal", "row": -1, "delay": 0},
+        {"type": "Normal", "row": -1, "delay": 0.5},
+        {"type": "Normal", "row": -1, "delay": 1.0}
+      ]
+    },
+    {
+      "wait": 15,
+      "flag": true,
+      "spawns": [
+        {"type": "Flag", "row": -1, "delay": 0},
+        {"type": "Normal", "row": -1, "delay": 2},
+        {"type": "Normal", "row": -1, "delay": 4},
+        {"type": "Normal", "row": -1, "delay": 6},
+        {"type": "Normal", "row": -1, "delay": 8},
+        {"type": "Normal", "row": -1, "delay": 10}
+      ]
+    }
+  ]
+}
