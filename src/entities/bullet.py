@@ -29,10 +29,10 @@ class PeaBullet:
         self.y = y
         self.damage = self.DAMAGE
         self.alive = True
+        self.is_ice = False  # whether this bullet applies slow
 
         rm = ResourceManager()
         frames = rm.load_sequence("Bullets/PeaNormal")
-        # PeaNormal has only 1 frame; that's fine
         self.sprite = AnimatedSprite(frames, fps=1, loop=True, position=(int(x), int(y)))
         self.rect = self.sprite.rect
 
@@ -53,6 +53,26 @@ class PeaBullet:
 
     def kill(self):
         self.alive = False
+
+
+class IcePeaBullet(PeaBullet):
+    """An ice pea that deals 20 damage and slows the target by 50% for 10 seconds."""
+
+    DAMAGE = 20
+    SLOW_FACTOR = 0.5   # speed multiplier while slowed
+    SLOW_DURATION = 10.0  # seconds
+
+    def __init__(self, row: int, x: float, y: float):
+        # We need to set damage before super().__init__ overrides it
+        super().__init__(row, x, y)
+        self.damage = self.DAMAGE
+        self.is_ice = True
+
+        # Override sprite with ice pea frames
+        rm = ResourceManager()
+        frames = rm.load_sequence("Bullets/PeaIce")
+        self.sprite = AnimatedSprite(frames, fps=1, loop=True, position=(int(x), int(y)))
+        self.rect = self.sprite.rect
 
 
 class PeaExplode:

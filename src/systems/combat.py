@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from src.config import GRID_ROWS
-from src.entities.bullet import BulletManager
+from src.entities.bullet import BulletManager, IcePeaBullet
 from src.entities.zombie import ZombieManager
 
 
@@ -36,6 +36,12 @@ class CombatSystem:
                 if bullet.rect.colliderect(zombie.rect):
                     # Apply damage
                     zombie.take_damage(bullet.damage)
+                    # Apply slow effect for ice bullets
+                    if bullet.is_ice:
+                        zombie.apply_slow(
+                            IcePeaBullet.SLOW_FACTOR,
+                            IcePeaBullet.SLOW_DURATION,
+                        )
                     # Spawn explosion effect
                     self._bullet_mgr.spawn_explosion(
                         bullet.rect.centerx,

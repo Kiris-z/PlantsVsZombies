@@ -67,10 +67,15 @@ class Zombie:
         self.hp: int = self.BODY_HP
         self.armour_hp: int = self.ARMOUR_HP
         self.speed: float = self.SPEED
+        self.base_speed: float = self.SPEED  # original speed for slow reset
         self.attack_dps: float = self.ATTACK_DPS
         self.alive: bool = True
         self.state: ZombieState = ZombieState.WALK
         self._target_plant: Plant | None = None
+
+        # Slow effect
+        self._slow_timer: float = 0.0
+        self._slow_factor: float = 1.0
 
         # pixel position: start off-screen right
         start_col = GRID_COLS + 0.5 + col_offset
@@ -212,6 +217,13 @@ class Zombie:
                 # deal damage
                 self._target_plant.take_damage(self.attack_dps * dt)
 
+        # Update slow timer
+        if self._slow_timer > 0:
+            self._slow_timer -= dt
+            if self._slow_timer <= 0:
+                self._slow_factor = 1.0
+                self.speed = self.base_speed
+
         # Move
         if self.state in (ZombieState.WALK, ZombieState.LOST_HEAD):
             self.x -= self.speed * CELL_WIDTH * dt
@@ -236,6 +248,12 @@ class Zombie:
             if my_left <= plant_right and self.x >= plant_left:
                 return p
         return None
+
+    def apply_slow(self, factor: float, duration: float):
+        """Apply a slow effect: speed *= factor for duration seconds."""
+        self._slow_factor = factor
+        self._slow_timer = duration
+        self.speed = self.base_speed * factor
 
     def draw(self, surface: pygame.Surface):
         if self.alive:

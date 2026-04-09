@@ -1,4 +1,5 @@
-"""Plant entities — Peashooter, SunFlower, WallNut."""
+"""Plant entities — Peashooter, SunFlower, WallNut, SnowPea, CherryBomb,
+RepeaterPea, Chomper, PotatoMine."""
 
 from __future__ import annotations
 
@@ -9,7 +10,7 @@ import pygame
 from src.engine.sprite import AnimatedSprite
 from src.engine.resource import ResourceManager
 from src.systems.grid import LawnGrid
-from src.config import PLANT_DEFS, CELL_WIDTH
+from src.config import PLANT_DEFS, CELL_WIDTH, CELL_HEIGHT, GRID_ROWS, GRID_COLS
 
 if TYPE_CHECKING:
     from src.entities.bullet import BulletManager
@@ -177,6 +178,271 @@ class WallNut(Plant):
 
 
 # ═══════════════════════════════════════════════════════════════════════
+# SnowPea
+# ═══════════════════════════════════════════════════════════════════════
+
+class SnowPea(Plant):
+    """Fires an ice pea every 1.4 s — 20 damage + 50% slow for 10 s."""
+
+    SHOOT_INTERVAL = 1.4
+
+    def __init__(self, row: int, col: int):
+        super().__init__("SnowPea", row, col)
+        self._shoot_timer: float = self.SHOOT_INTERVAL
+
+    def plant_update(self, dt: float, **kwargs):
+        bullet_mgr: BulletManager | None = kwargs.get("bullet_mgr")
+        zombies_in_row: bool = kwargs.get("zombies_in_row", False)
+
+        if not zombies_in_row or bullet_mgr is None:
+            return
+
+        self._shoot_timer -= dt
+        if self._shoot_timer <= 0:
+            self._shoot_timer = self.SHOOT_INTERVAL
+            self._fire(bullet_mgr)
+
+    def _fire(self, bullet_mgr: BulletManager):
+        from src.entities.bullet import IcePeaBullet
+        bx = float(self.sprite.rect.centerx + 20)
+        by = float(self.sprite.rect.centery - 10)
+        bullet_mgr.add(IcePeaBullet(self.row, bx, by))
+
+
+# ═══════════════════════════════════════════════════════════════════════
+# CherryBomb
+# ═══════════════════════════════════════════════════════════════════════
+
+class CherryBomb(Plant):
+    """Explodes in a 3×3 area for 1800 damage, one-shot plant.
+
+    Plays the CherryBomb animation, then deals damage and removes itself.
+    """
+
+    EXPLOSION_DAMAGE = 1800
+    FUSE_TIME = 1.0  # seconds before detonation (let anim play)
+
+    def __init__(self, row: int, col: int):
+        super().__init__("CherryBomb", row, col)
+        self.sprite.loop = False  # one-shot animation
+        self._fuse_timer: float = self.FUSE_TIME
+        self._exploded: bool = False
+
+    def plant_update(self, dt: float, **kwargs):
+        zombie_mgr = kwargs.get("zombie_mgr")
+        if self._exploded:
+            return
+
+        self._fuse_timer -= dt
+        if self._fuse_timer <= 0 or self.sprite.finished:
+            self._explode(zombie_mgr)
+
+    def _explode(self, zombie_mgr):
+        self._exploded = True
+        if zombie_mgr is None:
+            self.alive = False
+            return
+
+        # 3×3 area centred on this plant
+        for dr in range(-1, 2):
+            for dc in range(-1, 2):
+                r = self.row + dr
+                c = self.col + dc
+                if 0 <= r < GRID_ROWS and 0 <= c < GRID_COLS:
+                    for z in zombie_mgr.get_by_row(r):
+                        # Check if zombie is within the column range (pixel based)
+                        zcol_approx = (z.x - 35) / CELL_WIDTH
+                        if c - 0.5 <= zcol_approx <= c + 1.5:
+                            z.take_damage(self.EXPLOSION_DAMAGE)
+
+        self.alive = False
+
+
+# ═══════════════════════════════════════════════════════════════════════
+# RepeaterPea
+# ═══════════════════════════════════════════════════════════════════════
+
+class RepeaterPea(Plant):
+    """Fires two peas every 1.4 s (separated by 0.15 s)."""
+
+    SHOOT_INTERVAL = 1.4
+    BURST_DELAY = 0.15  # delay between the two peas in a burst
+
+    def __init__(self, row: int, col: int):
+        super().__init__("RepeaterPea", row, col)
+        self._shoot_timer: float = self.SHOOT_INTERVAL
+        self._burst_pending: bool = False
+        self._burst_timer: float = 0.0
+
+    def plant_update(self, dt: float, **kwargs):
+        bullet_mgr: BulletManager | None = kwargs.get("bullet_mgr")
+        zombies_in_row: bool = kwargs.get("zombies_in_row", False)
+
+        # Handle pending second shot of burst
+        if self._burst_pending and bullet_mgr is not None:
+            self._burst_timer -= dt
+            if self._burst_timer <= 0:
+                self._fire(bullet_mgr)
+                self._burst_pending = False
+
+        if not zombies_in_row or bullet_mgr is None:
+            return
+
+        self._shoot_timer -= dt
+        if self._shoot_timer <= 0:
+            self._shoot_timer = self.SHOOT_INTERVAL
+            self._fire(bullet_mgr)
+            # Queue second pea
+            self._burst_pending = True
+            self._burst_timer = self.BURST_DELAY
+
+    def _fire(self, bullet_mgr: BulletManager):
+        from src.entities.bullet import PeaBullet
+        bx = float(self.sprite.rect.centerx + 20)
+        by = float(self.sprite.rect.centery - 10)
+        bullet_mgr.add(PeaBullet(self.row, bx, by))
+
+
+# ═══════════════════════════════════════════════════════════════════════
+# Chomper
+# ═══════════════════════════════════════════════════════════════════════
+
+class Chomper(Plant):
+    """Instantly kills one zombie by swallowing it, then chews for 42 s.
+
+    States: IDLE → ATTACK → DIGEST → IDLE
+    """
+
+    ATTACK_RANGE = CELL_WIDTH * 1.5  # pixels — how close a zombie must be
+    DIGEST_TIME = 42.0
+
+    def __init__(self, row: int, col: int):
+        super().__init__("Chomper", row, col)
+        self._state: str = "idle"  # idle / attack / digest
+        self._digest_timer: float = 0.0
+        self._attack_timer: float = 0.0
+
+        rm = ResourceManager()
+        cx, cy = LawnGrid.cell_to_pixel(row, col)
+        self._anim_idle = self.sprite
+        self._anim_attack = AnimatedSprite(
+            rm.load_sequence("Plants/Chomper/ChomperAttack"),
+            fps=14, loop=False, position=(cx, cy),
+        )
+        self._anim_digest = AnimatedSprite(
+            rm.load_sequence("Plants/Chomper/ChomperDigest"),
+            fps=12, loop=True, position=(cx, cy),
+        )
+
+    def plant_update(self, dt: float, **kwargs):
+        zombie_mgr = kwargs.get("zombie_mgr")
+
+        if self._state == "idle":
+            if zombie_mgr is None:
+                return
+            # Look for a zombie in range
+            zombies = zombie_mgr.get_by_row(self.row)
+            for z in zombies:
+                if z.alive and abs(z.x - self.sprite.rect.centerx) < self.ATTACK_RANGE:
+                    # Chomp!
+                    z.take_damage(z.total_hp + 9999)  # instant kill
+                    self._switch_to("attack")
+                    self._attack_timer = 0.7  # time to play attack anim
+                    break
+
+        elif self._state == "attack":
+            self._attack_timer -= dt
+            if self._attack_timer <= 0 or self._anim_attack.finished:
+                self._switch_to("digest")
+                self._digest_timer = self.DIGEST_TIME
+
+        elif self._state == "digest":
+            self._digest_timer -= dt
+            if self._digest_timer <= 0:
+                self._switch_to("idle")
+
+    def _switch_to(self, state: str):
+        self._state = state
+        cx, cy = self.sprite.rect.center
+        if state == "idle":
+            self.sprite = self._anim_idle
+            self._anim_idle.reset()
+        elif state == "attack":
+            self.sprite = self._anim_attack
+            self._anim_attack.reset()
+        elif state == "digest":
+            self.sprite = self._anim_digest
+            self._anim_digest.reset()
+        self.sprite.rect.center = (cx, cy)
+        self.rect = self.sprite.rect
+
+
+# ═══════════════════════════════════════════════════════════════════════
+# PotatoMine
+# ═══════════════════════════════════════════════════════════════════════
+
+class PotatoMine(Plant):
+    """Underground for 14 s (init anim), then pops up. Explodes on contact for 1800 damage."""
+
+    PREP_TIME = 14.0
+    EXPLOSION_DAMAGE = 1800
+
+    def __init__(self, row: int, col: int):
+        super().__init__("PotatoMine", row, col)
+        self._ready: bool = False
+        self._prep_timer: float = self.PREP_TIME
+
+        rm = ResourceManager()
+        cx, cy = LawnGrid.cell_to_pixel(row, col)
+        # Init sprite is already loaded by super() (PotatoMineInit)
+        self._anim_init = self.sprite
+        self._anim_ready = AnimatedSprite(
+            rm.load_sequence("Plants/PotatoMine/PotatoMine"),
+            fps=12, loop=True, position=(cx, cy),
+        )
+        # Explode is one-shot, but we just remove the plant
+        try:
+            self._anim_explode = AnimatedSprite(
+                rm.load_sequence("Plants/PotatoMine/PotatoMineExplode"),
+                fps=12, loop=False, position=(cx, cy),
+            )
+        except FileNotFoundError:
+            self._anim_explode = None
+
+    def plant_update(self, dt: float, **kwargs):
+        zombie_mgr = kwargs.get("zombie_mgr")
+
+        if not self._ready:
+            self._prep_timer -= dt
+            if self._prep_timer <= 0:
+                self._ready = True
+                cx, cy = self.sprite.rect.center
+                self.sprite = self._anim_ready
+                self.sprite.rect.center = (cx, cy)
+                self.rect = self.sprite.rect
+            return
+
+        # Ready — check for zombie contact
+        if zombie_mgr is None:
+            return
+
+        zombies = zombie_mgr.get_by_row(self.row)
+        for z in zombies:
+            if z.alive and abs(z.x - self.sprite.rect.centerx) < CELL_WIDTH * 0.7:
+                # Explode!
+                self._detonate(zombie_mgr)
+                return
+
+    def _detonate(self, zombie_mgr):
+        """Deal 1800 damage to all zombies in the same cell area."""
+        zombies = zombie_mgr.get_by_row(self.row)
+        for z in zombies:
+            if abs(z.x - self.sprite.rect.centerx) < CELL_WIDTH * 1.2:
+                z.take_damage(self.EXPLOSION_DAMAGE)
+        self.alive = False
+
+
+# ═══════════════════════════════════════════════════════════════════════
 # Factory
 # ═══════════════════════════════════════════════════════════════════════
 
@@ -186,6 +452,11 @@ def create_plant(name: str, row: int, col: int) -> Plant:
         "Peashooter": Peashooter,
         "SunFlower": SunFlower,
         "WallNut": WallNut,
+        "SnowPea": SnowPea,
+        "CherryBomb": CherryBomb,
+        "RepeaterPea": RepeaterPea,
+        "Chomper": Chomper,
+        "PotatoMine": PotatoMine,
     }
     cls = _MAP.get(name)
     if cls is None:

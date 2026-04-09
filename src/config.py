@@ -64,10 +64,76 @@ PLANT_DEFS = {
         "anim_fps": 12,
         "card_image": "Cards/card_wallnut.png",
     },
+    "SnowPea": {
+        "cost": 175,
+        "cooldown": 7.5,
+        "hp": 300,
+        "anim_folder": "Plants/SnowPea",
+        "anim_fps": 12,
+        "card_image": "Cards/card_snowpea.png",
+    },
+    "CherryBomb": {
+        "cost": 150,
+        "cooldown": 50.0,
+        "hp": 300,
+        "anim_folder": "Plants/CherryBomb",
+        "anim_fps": 8,
+        "card_image": "Cards/card_cherrybomb.png",
+    },
+    "RepeaterPea": {
+        "cost": 200,
+        "cooldown": 7.5,
+        "hp": 300,
+        "anim_folder": "Plants/RepeaterPea",
+        "anim_fps": 12,
+        "card_image": "Cards/card_repeaterpea.png",
+    },
+    "Chomper": {
+        "cost": 150,
+        "cooldown": 7.5,
+        "hp": 300,
+        "anim_folder": "Plants/Chomper/Chomper",
+        "anim_fps": 12,
+        "card_image": "Cards/card_chomper.png",
+    },
+    "PotatoMine": {
+        "cost": 25,
+        "cooldown": 30.0,
+        "hp": 300,
+        "anim_folder": "Plants/PotatoMine/PotatoMineInit",
+        "anim_fps": 12,
+        "card_image": "Cards/card_potatomine.png",
+    },
 }
 
-# Card order in the bar
-CARD_ORDER = ["Peashooter", "SunFlower", "WallNut"]
+# Card order in the bar (full order — actual cards shown depend on level)
+CARD_ORDER = [
+    "Peashooter", "SunFlower", "WallNut", "SnowPea",
+    "CherryBomb", "RepeaterPea", "Chomper", "PotatoMine",
+]
+
+# ── Plant unlock table (level_id -> list of plants unlocked) ──────────
+PLANT_UNLOCK_TABLE = {
+    "1-1": ["Peashooter", "SunFlower"],
+    "1-2": ["WallNut"],
+    "1-3": ["SnowPea"],
+    "1-4": ["RepeaterPea", "CherryBomb"],
+    "1-5": ["Chomper"],
+}
+
+# ── Level definitions (ordered) ──────────────────────────────────────
+LEVEL_LIST = [
+    {"id": "1-1", "file": "src/data/levels/level_1_1.json", "name": "Level 1-1"},
+    {"id": "1-2", "file": "src/data/levels/level_1_2.json", "name": "Level 1-2"},
+    {"id": "1-3", "file": "src/data/levels/level_1_3.json", "name": "Level 1-3"},
+    {"id": "1-4", "file": "src/data/levels/level_1_4.json", "name": "Level 1-4"},
+    {"id": "1-5", "file": "src/data/levels/level_1_5.json", "name": "Level 1-5"},
+    {"id": "2-1", "file": "", "name": "Level 2-1"},
+    {"id": "2-2", "file": "", "name": "Level 2-2"},
+    {"id": "2-3", "file": "", "name": "Level 2-3"},
+    {"id": "2-4", "file": "", "name": "Level 2-4"},
+    {"id": "2-5", "file": "", "name": "Level 2-5"},
+]
 
 # ── Colors ────────────────────────────────────────────────────────────
 WHITE = (255, 255, 255)

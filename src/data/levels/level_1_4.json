@@ -1,0 +1,88 @@
+{
+  "name": "Level 1-4",
+  "initial_sun": 75,
+  "available_plants": ["Peashooter", "SunFlower", "WallNut", "SnowPea", "RepeaterPea", "CherryBomb"],
+  "waves": [
+    {
+      "wait": 25,
+      "flag": false,
+      "spawns": [
+        {"type": "Normal", "row": 2, "delay": 0},
+        {"type": "Normal", "row": 4, "delay": 2.0}
+      ]
+    },
+    {
+      "wait": 22,
+      "flag": false,
+      "spawns": [
+        {"type": "Conehead", "row": 1, "delay": 0},
+        {"type": "Normal", "row": 3, "delay": 1.0}
+      ]
+    },
+    {
+      "wait": 20,
+      "flag": false,
+      "spawns": [
+        {"type": "Normal", "row": 0, "delay": 0},
+        {"type": "Conehead", "row": 2, "delay": 1.5},
+        {"type": "Normal", "row": 4, "delay": 3.0}
+      ]
+    },
+    {
+      "wait": 18,
+      "flag": true,
+      "spawns": [
+        {"type": "Flag", "row": -1, "delay": 0},
+        {"type": "Buckethead", "row": 2, "delay": 0},
+        {"type": "Normal", "row": -1, "delay": 2},
+        {"type": "Conehead", "row": -1, "delay": 4},
+        {"type": "Normal", "row": -1, "delay": 6},
+        {"type": "Normal", "row": -1, "delay": 8}
+      ]
+    },
+    {
+      "wait": 16,
+      "flag": false,
+      "spawns": [
+        {"type": "Conehead", "row": -1, "delay": 0},
+        {"type": "Conehead", "row": -1, "delay": 2.0},
+        {"type": "Normal", "row": -1, "delay": 4.0}
+      ]
+    },
+    {
+      "wait": 14,
+      "flag": false,
+      "spawns": [
+        {"type": "Buckethead", "row": -1, "delay": 0},
+        {"type": "Conehead", "row": -1, "delay": 3.0},
+        {"type": "Normal", "row": -1, "delay": 5.0},
+        {"type": "Normal", "row": -1, "delay": 7.0}
+      ]
+    },
+    {
+      "wait": 12,
+      "flag": false,
+      "spawns": [
+        {"type": "Conehead", "row": 0, "delay": 0},
+        {"type": "Conehead", "row": 1, "delay": 0},
+        {"type": "Conehead", "row": 3, "delay": 1.0},
+        {"type": "Normal", "row": 4, "delay": 2.0}
+      ]
+    },
+    {
+      "wait": 10,
+      "flag": true,
+      "spawns": [
+        {"type": "Flag", "row": 2, "delay": 0},
+        {"type": "Buckethead", "row": -1, "delay": 0},
+        {"type": "Normal", "row": -1, "delay": 1},
+        {"type": "Conehead", "row": -1, "delay": 2},
+        {"type": "Normal", "row": -1, "delay": 3},
+        {"type": "Buckethead", "row": -1, "delay": 5},
+        {"type": "Normal", "row": -1, "delay": 7},
+        {"type": "Conehead", "row": -1, "delay": 9},
+        {"type": "Normal", "row": -1, "delay": 11}
+      ]
+    }
+  ]
+}

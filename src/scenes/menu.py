@@ -18,8 +18,8 @@ class MenuScene(Scene):
     def handle_event(self, event: pygame.event.Event):
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             if self._btn_rect.collidepoint(event.pos):
-                from src.scenes.gameplay import GameplayScene
-                self.game.scene_mgr.switch(GameplayScene(self.game))
+                from src.scenes.level_select import LevelSelectScene
+                self.game.scene_mgr.switch(LevelSelectScene(self.game))
 
     def draw(self, surface: pygame.Surface):
         surface.blit(self._bg, (0, 0))

@@ -7,13 +7,17 @@ import pygame
 from src.engine.scene import Scene
 from src.engine.resource import ResourceManager
 from src.engine.sprite import AnimatedSprite
-from src.entities.plant import PlantManager, create_plant, Peashooter, SunFlower
+from src.entities.plant import (
+    PlantManager, create_plant,
+    Peashooter, SunFlower, SnowPea, RepeaterPea, Chomper, CherryBomb, PotatoMine,
+)
 from src.entities.zombie import ZombieManager
 from src.entities.bullet import BulletManager
 from src.systems.grid import LawnGrid
 from src.systems.economy import SunManager
 from src.systems.combat import CombatSystem
 from src.systems.wave import WaveSystem
+from src.systems.save import SaveManager
 from src.config import (
     SCREEN_WIDTH, SCREEN_HEIGHT,
     GRID_X_START, GRID_Y_START,
@@ -85,6 +89,12 @@ class _EndState:
 
 class GameplayScene(Scene):
 
+    def __init__(self, game, level_file: str = "src/data/levels/level_1_1.json",
+                 level_id: str = "1-1"):
+        super().__init__(game)
+        self._level_file = level_file
+        self._level_id = level_id
+
     def enter(self):
         rm = ResourceManager()
 
@@ -95,28 +105,26 @@ class GameplayScene(Scene):
         # ── Card bar background ───────────────────────────────────────
         self._panel_bg = rm.load_image("Screen/ChooserBackground.png")
 
-        # ── Cards ─────────────────────────────────────────────────────
+        # ── Wave system (load first to know available plants) ─────────
+        self._zombie_mgr = ZombieManager()
+        self._wave_sys = WaveSystem(self._level_file, self._zombie_mgr)
+
+        # ── Cards — only show plants available in this level ──────────
+        available = self._wave_sys.available_plants
+        # Maintain CARD_ORDER ordering, filter by available
+        ordered = [p for p in CARD_ORDER if p in available]
         self._cards: list[CardSlot] = []
-        for i, name in enumerate(CARD_ORDER):
+        for i, name in enumerate(ordered):
             self._cards.append(CardSlot(name, i))
 
-        # ── Plant manager (replaces old EntityManager) ────────────────
+        # ── Plant manager ─────────────────────────────────────────────
         self._plant_mgr = PlantManager()
-
-        # ── Zombie manager ────────────────────────────────────────────
-        self._zombie_mgr = ZombieManager()
 
         # ── Bullet manager ────────────────────────────────────────────
         self._bullet_mgr = BulletManager()
 
         # ── Combat system ─────────────────────────────────────────────
         self._combat = CombatSystem(self._bullet_mgr, self._zombie_mgr)
-
-        # ── Wave system ───────────────────────────────────────────────
-        self._wave_sys = WaveSystem(
-            "src/data/levels/level_1_1.json",
-            self._zombie_mgr,
-        )
 
         # ── Sun manager ───────────────────────────────────────────────
         self._sun_mgr = SunManager()
@@ -145,11 +153,11 @@ class GameplayScene(Scene):
 
     def handle_event(self, event: pygame.event.Event):
         if self._end_state != _EndState.PLAYING:
-            # Click to return to menu
+            # Click to return to level select
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 if self._end_timer <= 0:
-                    from src.scenes.menu import MenuScene
-                    self.game.scene_mgr.switch(MenuScene(self.game))
+                    from src.scenes.level_select import LevelSelectScene
+                    self.game.scene_mgr.switch(LevelSelectScene(self.game))
             return
 
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
@@ -212,11 +220,15 @@ class GameplayScene(Scene):
         if self._flag_warning_timer > 0:
             self._flag_warning_timer -= dt
 
-        # Plants — pass bullet_mgr and sun_mgr, plus per-row zombie info
+        # Plants — pass bullet_mgr, sun_mgr, zombie_mgr, plus per-row zombie info
         for plant in self._plant_mgr.all_alive():
-            kwargs = {"sun_mgr": self._sun_mgr, "bullet_mgr": self._bullet_mgr}
-            # Check if any zombie is alive in this row
-            if isinstance(plant, Peashooter):
+            kwargs = {
+                "sun_mgr": self._sun_mgr,
+                "bullet_mgr": self._bullet_mgr,
+                "zombie_mgr": self._zombie_mgr,
+            }
+            # Check if any zombie is alive in this row for shooter plants
+            if isinstance(plant, (Peashooter, SnowPea, RepeaterPea)):
                 zombies_in_row = len(self._zombie_mgr.get_by_row(plant.row)) > 0
                 kwargs["zombies_in_row"] = zombies_in_row
             plant.update(dt, **kwargs)
@@ -249,6 +261,9 @@ class GameplayScene(Scene):
         self._end_state = _EndState.VICTORY
         self._end_image = rm.load_image("Screen/GameVictory.png")
         self._end_timer = 1.0  # brief delay before click-to-continue
+        # Save progress
+        save_mgr = SaveManager()
+        save_mgr.complete_level(self._level_id)
 
     def _trigger_game_over(self):
         rm = ResourceManager()
