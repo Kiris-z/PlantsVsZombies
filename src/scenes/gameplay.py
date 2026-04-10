@@ -248,7 +248,6 @@ class GameplayScene(Scene):
         self._combat.update(dt)
 
         # ── Lawn mowers ───────────────────────────────────────────────
-        self._lawnmowers.check_zombie_reach(self._zombie_mgr)
         self._lawnmowers.update(dt, self._zombie_mgr)
 
         # ── Win/Lose checks ───────────────────────────────────────────
