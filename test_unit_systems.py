@@ -53,10 +53,14 @@ check("Sun subtraction works", sun_mgr.sun_count == 75)
 check("Sun never negative (manual)", sun_mgr.sun_count >= 0)
 
 # Sky sun spawning after enough time
-# Max initial interval is 25s, so wait ~50s to guarantee at least one spawn
+# Max initial interval is 25s, so wait ~50s to guarantee at least one spawn.
+# Suns expire after landing (8s lifetime), so track if ANY sun was ever created.
+sky_sun_ever_spawned = False
 for _ in range(3000):  # ~50 seconds
     sun_mgr.update(DT)
-check("Sky suns spawn", len(sun_mgr._suns) > 0, f"suns={len(sun_mgr._suns)}")
+    if len(sun_mgr._suns) > 0:
+        sky_sun_ever_spawned = True
+check("Sky suns spawn", sky_sun_ever_spawned, f"current suns={len(sun_mgr._suns)}")
 
 # ── Test 2: Bullet-zombie collision ──────────────────────────────────
 print("\n🔫 Test 2: Bullet-Zombie Collision")
