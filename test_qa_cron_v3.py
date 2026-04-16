@@ -85,80 +85,81 @@ while frames < max_frames:
         if planted_names.get((r, c)) == "Peashooter":
             ps_per_row[r] = ps_per_row.get(r, 0) + 1
 
-    # Level 1-1 waves: Normal zombies in rows 2,2,1+3,2+1,2+1+3
-    # Row 2 is hit HARDEST (waves 1,2,4,5). Rows 1,3 hit in waves 3,4,5.
-    # Rows 0,4 are NEVER attacked. So focus defense on rows 1,2,3 only.
-    # Normal zombie: 200hp, 0.5 cells/s. Peashooter: 20dmg/1.4s = ~14.3 dps
-    # Time for 1 PS to kill Normal: 14s. Zombie cross time: ~19s. BARELY enough.
-    # Need 2 PS in row 2 (hit every wave) to handle back-to-back zombies.
+    # Level 1-1 waves: Normal(r2), Normal(r2), Normal(r1)+Normal(r3),
+    #   Normal(r2)+Normal(r1), Flag(r2)+Normal(r1)+Normal(r3)
+    # ALL attacked rows (1,2,3) need defense BEFORE wave 3 (~85s).
+    # Normal zombie: 200hp, ~0.5 cells/s. Peashooter: 20dmg/1.4s ≈ 14.3 dps
+    # One PS kills a Normal in ~14s. Zombie crosses ~19s. Tight but works.
+    # CRITICAL: Cover ALL 3 rows with 1 PS each before doubling up!
+    # Wave 5 sends a second zombie to row 3 — need 2 PS there by then.
 
     # Phase 1: First sunflower (economy start)
     if sf_count < 1 and sun >= 50:
         auto_plant(gp, "SunFlower", 2, 0)
         sun = gp._sun_mgr.sun_count
 
-    # Phase 2: First peashooter in row 2 ASAP (first wave targets row 2!)
+    # Phase 2: First peashooter in row 2 ASAP (wave 1 targets row 2!)
     if sf_count >= 1 and ps_count < 1 and sun >= 100:
-        auto_plant(gp, "Peashooter", 2, 3)
+        auto_plant(gp, "Peashooter", 2, 2)
         sun = gp._sun_mgr.sun_count
 
-    # Phase 3: Second sunflower for economy
+    # Phase 3: Second sunflower
     if ps_count >= 1 and sf_count < 2 and sun >= 50:
         auto_plant(gp, "SunFlower", 1, 0)
         sun = gp._sun_mgr.sun_count
 
-    # Phase 4: SECOND peashooter in row 2 (this row gets hit every other wave!)
-    if sf_count >= 2 and ps_per_row.get(2, 0) < 2 and sun >= 100:
-        auto_plant(gp, "Peashooter", 2, 2)
+    # Phase 4: Peashooter in row 1 (attacked in wave 3, 4, 5)
+    if sf_count >= 2 and 1 not in rows_with_ps and sun >= 100:
+        auto_plant(gp, "Peashooter", 1, 2)
         sun = gp._sun_mgr.sun_count
 
-    # Phase 5: Peashooters in rows 1 and 3 (hit in wave 3)
-    if ps_per_row.get(2, 0) >= 2 and sun >= 100:
-        for r in [1, 3]:
-            if r not in rows_with_ps:
-                if auto_plant(gp, "Peashooter", r, 3):
-                    sun = gp._sun_mgr.sun_count
-                    break
+    # Phase 5: Peashooter in row 3 (attacked in wave 3, 5) — MUST plant before wave 3!
+    if sf_count >= 2 and 3 not in rows_with_ps and sun >= 100:
+        auto_plant(gp, "Peashooter", 3, 2)
+        sun = gp._sun_mgr.sun_count
 
     # Phase 6: Third sunflower
     if len(rows_with_ps) >= 3 and sf_count < 3 and sun >= 50:
         auto_plant(gp, "SunFlower", 3, 0)
         sun = gp._sun_mgr.sun_count
 
-    # Phase 7: Second peashooter in rows 1,3
+    # Phase 7: Second peashooter in each attacked row (row 2 first — most waves)
     if len(rows_with_ps) >= 3 and sun >= 100:
-        for r in [1, 3]:
+        for r in [2, 3, 1]:
             if ps_per_row.get(r, 0) < 2:
-                if auto_plant(gp, "Peashooter", r, 2):
-                    sun = gp._sun_mgr.sun_count
-                    break
+                for c in [3, 4]:
+                    if (r, c) not in planted_cells:
+                        if auto_plant(gp, "Peashooter", r, c):
+                            sun = gp._sun_mgr.sun_count
+                        break
+                break
 
-    # Phase 8: More sunflowers in unused rows
-    if ps_count >= 5 and sf_count < 5 and sun >= 50:
-        for r in [0, 4]:
-            if (r, 0) not in planted_cells:
-                if auto_plant(gp, "SunFlower", r, 0):
-                    sun = gp._sun_mgr.sun_count
-                    break
-
-    # Phase 9: WallNuts for row 2 (takes most hits)
-    if ps_count >= 6 and sun >= 50:
-        for r in [2, 1, 3]:
+    # Phase 8: WallNuts for hardest-hit rows
+    if ps_count >= 5 and sun >= 50:
+        for r in [2, 3, 1]:
             if (r, 5) not in planted_cells:
                 if auto_plant(gp, "WallNut", r, 5):
                     sun = gp._sun_mgr.sun_count
                     break
 
-    # Phase 10: Third peashooter per attacked row
+    # Phase 9: Third peashooter per attacked row
     if ps_count >= 6 and sun >= 100:
         for r in [2, 1, 3]:
             if ps_per_row.get(r, 0) < 3:
-                for c in [4, 1]:
+                for c in [4, 1, 3]:
                     if (r, c) not in planted_cells:
                         if auto_plant(gp, "Peashooter", r, c):
                             sun = gp._sun_mgr.sun_count
                             break
                 break
+
+    # Phase 10: Extra sunflowers in safe rows
+    if ps_count >= 6 and sf_count < 5 and sun >= 50:
+        for r in [0, 4]:
+            if (r, 0) not in planted_cells:
+                if auto_plant(gp, "SunFlower", r, 0):
+                    sun = gp._sun_mgr.sun_count
+                    break
 
     # Track zombie changes
     prev_zombie_ids = set(id(z) for z in gp._zombie_mgr.zombies)
